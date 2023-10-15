@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "femtosecond (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "femtosecond (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
