@@ -5,6 +5,7 @@
     xmlns:local="using:femtosecond"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Window.SystemBackdrop>
@@ -20,22 +21,32 @@
         <Grid x:Name="AppTitleBar" Height="48">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
-                <ColumnDefinition />
+                <ColumnDefinition x:Name="IconColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="TitleColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="MenuColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="RightDragColumn" Width="*"/>
                 <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
             </Grid.ColumnDefinitions>
             <Image x:Name="TitleBarIcon" Source="/Assets/Square150x150Logo.scale-200.png"
                     Grid.Column="1"
-                    HorizontalAlignment="Left"
                     Width="16" Height="16"
                     Margin="8,0,0,0"/>
             <TextBlock x:Name="TitleTextBlock" 
                        Text="Femtosecond" 
                        Style="{StaticResource CaptionTextBlockStyle}"
-                       Grid.Column="1"
+                       Grid.Column="2"
                        VerticalAlignment="Center"
-                       Margin="28,0,0,0"/>
+                       Margin="4,0,0,0"/>
+            <muxc:MenuBar Grid.Column="3" 
+                          VerticalAlignment="center" 
+                          Margin="4,0">
+                <muxc:MenuBarItem Title="File">
+                    <muxc:MenuFlyoutItem x:Name="NewFileButton" Click="OnNewFileButtonClick" Text="New"/>
+                    <muxc:MenuFlyoutItem x:Name="OpenFileButton" Click="OnOpenFileButtonClick" Text="Open"/>
+                    <muxc:MenuFlyoutItem x:Name="SaveFileButton" Click="OnSaveFileButtonClick" Text="Save"/>
+                </muxc:MenuBarItem>
+            </muxc:MenuBar>
         </Grid>
-
 
         <NavigationView Grid.Row="1" 
                             IsBackButtonVisible="Collapsed"
@@ -48,10 +59,8 @@
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBox x:Name="Editor" FontFamily="Lilex" AcceptsReturn="True"
-                             Width="Auto" Height="Auto" Padding="24"/>
-                </StackPanel>
+                <TextBox x:Name="Editor" FontFamily="Lilex" AcceptsReturn="True"
+                         Width="Auto" Height="Auto" Padding="24" />
             </Frame>
         </NavigationView>
     </Grid>
