@@ -170,7 +170,7 @@ namespace femtosecond
 
         private async void OnSaveFileButtonClick(object sender, RoutedEventArgs e)
         {
-            if(Current != null)
+            if(currentFile != null)
             {
                 await Windows.Storage.FileIO.WriteTextAsync(currentFile, this.Editor.Text);
             }
