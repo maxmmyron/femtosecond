@@ -149,9 +149,48 @@ namespace femtosecond
             return scaleFactorPercent / 100.0;
         }
 
-        private void OnNewFileButtonClick(object sender, RoutedEventArgs e)
+        private async void OnNewFileButtonClick(object sender, RoutedEventArgs e)
         {
-           
+            if(currentFile == null)
+            {
+                CreateAndOpenFile();
+                return;
+            }
+
+            string fileContents = await Windows.Storage.FileIO.ReadTextAsync(currentFile);
+            if(fileContents != this.Editor.Text)
+            {
+                ContentDialog saveDialog = new ContentDialog()
+                {
+                    Title = "Save your changes?",
+                    Content = "You have unsaved changes in your current file. Save the file before opening a new one to prevnet losing your chanages.",
+                    PrimaryButtonText = "Save",
+                    SecondaryButtonText = "Don't Save",
+                    CloseButtonText = "Cancel",
+                };
+
+                ContentDialogResult result = await saveDialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    await Windows.Storage.FileIO.WriteTextAsync(currentFile, this.Editor.Text);
+                } 
+                
+                if(result != ContentDialogResult.None)
+                {
+                    CreateAndOpenFile();
+                }
+            }
+        }
+
+        private async void CreateAndOpenFile()
+        {
+            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            currentFile = await storageFolder.CreateFileAsync("sample.txt",
+                Windows.Storage.CreationCollisionOption.ReplaceExisting);
+
+            this.Editor.Text = "";
+            FileA.Text = currentFile.Name;
         }
 
         private async void OnOpenFileButtonClick(object sender, RoutedEventArgs e)
@@ -164,6 +203,7 @@ namespace femtosecond
                 if(contents != null)
                 {
                     this.Editor.Text = contents;
+                    FileA.Text = currentFile.Name;
                 }
             }
         }

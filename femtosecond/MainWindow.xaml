@@ -53,9 +53,9 @@
                             IsPaneToggleButtonVisible="False"
                             IsSettingsVisible="False" >
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Nav Item A"/>
-                <NavigationViewItem Content="Nav Item B"/>
-                <NavigationViewItem Content="Nav Item C"/>
+                <NavigationViewItem>
+                    <TextBox x:Name="FileA" />
+                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame">
