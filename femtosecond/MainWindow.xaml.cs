@@ -220,13 +220,6 @@ namespace femtosecond
             }
         }
 
-        private async void OnOpenFolderButtonClick(object sender, RoutedEventArgs e)
-        {
-            (App.Current as App).workingDirectory = await folderPicker.PickSingleFolderAsync();
-
-            CreateWorkspaceFromAppDirectory();
-        }
-
         private void CreateWorkspaceFromAppDirectory()
         {
             (App.Current as App).Files = System.IO.Directory.EnumerateFiles((App.Current as App).workingDirectory.Path, "*", System.IO.SearchOption.AllDirectories);
@@ -235,7 +228,9 @@ namespace femtosecond
 
             foreach (string file in (App.Current as App).Files)
             {
-                NavigationView.MenuItems.Add(file.Substring(dirLen));
+                MenuFileItem item = new MenuFileItem();
+                item.FileName = file.Substring(dirLen);
+                NavigationView.MenuItems.Add(item);
             }
 
             ContentFrame.Navigate(typeof(Workspace));
