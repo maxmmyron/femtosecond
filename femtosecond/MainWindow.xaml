@@ -41,26 +41,22 @@
                           VerticalAlignment="center" 
                           Margin="4,0">
                 <muxc:MenuBarItem Title="File">
-                    <muxc:MenuFlyoutItem x:Name="NewFileButton" Click="OnNewFileButtonClick" Text="New"/>
-                    <muxc:MenuFlyoutItem x:Name="OpenFileButton" Click="OnOpenFileButtonClick" Text="Open"/>
-                    <muxc:MenuFlyoutItem x:Name="SaveFileButton" Click="OnSaveFileButtonClick" Text="Save"/>
+                    <muxc:MenuFlyoutItem x:Name="NewWorkspaceButton" Click="OnNewWorkspaceButtonClick" Text="New Workspace"/>
+                    <muxc:MenuFlyoutItem x:Name="OpenFolderButton" Click="OnOpenFolderButtonClick" Text="Open Folder"/>
+                    <muxc:MenuFlyoutItem x:Name="SaveFileButton" Click="OnSaveFileButtonClick" Text="Save File"/>
                 </muxc:MenuBarItem>
             </muxc:MenuBar>
         </Grid>
 
-        <NavigationView Grid.Row="1" 
-                            IsBackButtonVisible="Collapsed"
-                            IsPaneToggleButtonVisible="False"
-                            IsSettingsVisible="False" >
-            <NavigationView.MenuItems>
-                <NavigationViewItem>
-                    <TextBox x:Name="FileA" />
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-
-            <Frame x:Name="ContentFrame">
-                <TextBox x:Name="Editor" FontFamily="Lilex" AcceptsReturn="True"
-                         Width="Auto" Height="Auto" Padding="24" />
+        <NavigationView Grid.Row="1" IsBackButtonVisible="Collapsed"
+                        IsPaneToggleButtonVisible="False"
+                        IsSettingsVisible="False" 
+                        x:Name="NavigationView" 
+                        SelectionChanged="OnNavigationViewSelectionChanged">
+            <Frame x:Name="ContentFrame" Grid.Row="1">
+                <Frame VerticalContentAlignment="center" HorizontalContentAlignment="center">
+                    <Button Content="Open Folder" x:Name="OpenFolderButton" Click="OnOpenFolderButtonClick" />
+                </Frame>
             </Frame>
         </NavigationView>
     </Grid>

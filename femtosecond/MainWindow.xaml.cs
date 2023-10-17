@@ -21,16 +21,21 @@ namespace femtosecond
     public sealed partial class MainWindow : Window
     {
         private AppWindow m_AppWindow;
-        FileOpenPicker openPicker;
-        Windows.Storage.StorageFile currentFile;
+        FolderPicker folderPicker;
+
+        string currentPath;
+
+        public AppViewModel ViewModel { get; set; } = new AppViewModel();
+        public static MainWindow Current { get; set; }
 
         public MainWindow()
         {
             this.InitializeComponent();
+            Current = this;
 
             m_AppWindow = GetAppWindowForCurrentWindow();
 
-            InitializeOpenPicker();
+            InitializeFolderPicker();
 
             if (AppWindowTitleBar.IsCustomizationSupported())
             {
@@ -47,20 +52,14 @@ namespace femtosecond
             }
         }
 
-        private void InitializeOpenPicker()
+        private void InitializeFolderPicker() 
         {
-            openPicker = new FileOpenPicker();
-            openPicker.ViewMode = PickerViewMode.Thumbnail;
-            openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            openPicker.FileTypeFilter.Add(".txt");
-            openPicker.FileTypeFilter.Add(".js");
-            openPicker.FileTypeFilter.Add(".ts");
-            openPicker.FileTypeFilter.Add(".css");
-            openPicker.FileTypeFilter.Add(".html");
-            openPicker.FileTypeFilter.Add(".svelte");
+            folderPicker = new FolderPicker();
+            folderPicker.ViewMode = PickerViewMode.List;
+            folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
 
             var hWnd = WindowNative.GetWindowHandle(this);
-            InitializeWithWindow.Initialize(openPicker, hWnd);
+            InitializeWithWindow.Initialize(folderPicker, hWnd);
         }
         
         private AppWindow GetAppWindowForCurrentWindow() 
@@ -149,71 +148,104 @@ namespace femtosecond
             return scaleFactorPercent / 100.0;
         }
 
-        private async void OnNewFileButtonClick(object sender, RoutedEventArgs e)
+        private async void OnNewWorkspaceButtonClick(object sender, RoutedEventArgs e)
         {
-            if(currentFile == null)
+            if(ViewModel.WorkspaceDirectory == null)
             {
-                CreateAndOpenFile();
+                CreateNewWorkspace();
                 return;
             }
 
-            string fileContents = await Windows.Storage.FileIO.ReadTextAsync(currentFile);
-            if(fileContents != this.Editor.Text)
+            string fileContents = System.IO.File.ReadAllText(currentPath);
+            if(fileContents != ViewModel.EditorContents)
             {
-                ContentDialog saveDialog = new ContentDialog()
-                {
-                    Title = "Save your changes?",
-                    Content = "You have unsaved changes in your current file. Save the file before opening a new one to prevnet losing your chanages.",
-                    PrimaryButtonText = "Save",
-                    SecondaryButtonText = "Don't Save",
-                    CloseButtonText = "Cancel",
-                };
-
-                ContentDialogResult result = await saveDialog.ShowAsync();
-
-                if (result == ContentDialogResult.Primary)
-                {
-                    await Windows.Storage.FileIO.WriteTextAsync(currentFile, this.Editor.Text);
-                } 
-                
-                if(result != ContentDialogResult.None)
-                {
-                    CreateAndOpenFile();
-                }
+                Boolean canOpen = await AskToSaveChanges();
+                if (canOpen) CreateNewWorkspace();
             }
         }
 
-        private async void CreateAndOpenFile()
+        private void CreateNewWorkspace()
         {
-            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            currentFile = await storageFolder.CreateFileAsync("sample.txt",
-                Windows.Storage.CreationCollisionOption.ReplaceExisting);
-
-            this.Editor.Text = "";
-            FileA.Text = currentFile.Name;
+            ViewModel.WorkspaceDirectory = null;
+            ViewModel.EditorContents = "";
         }
 
-        private async void OnOpenFileButtonClick(object sender, RoutedEventArgs e)
+        private async System.Threading.Tasks.Task<Boolean> AskToSaveChanges()
         {
-
-            currentFile = await openPicker.PickSingleFileAsync();
-            if(currentFile != null)
+            ContentDialog saveDialog = new ContentDialog()
             {
-                string contents = await Windows.Storage.FileIO.ReadTextAsync(currentFile);
-                if(contents != null)
-                {
-                    this.Editor.Text = contents;
-                    FileA.Text = currentFile.Name;
-                }
+                Title = "Save your changes?",
+                Content = "You have unsaved changes in your current file. Save the file before opening a new one to prevnet losing your chanages.",
+                PrimaryButtonText = "Save",
+                SecondaryButtonText = "Don't Save",
+                CloseButtonText = "Cancel",
+            };
+
+            ContentDialogResult result = await saveDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                System.IO.File.WriteAllText(currentPath, ViewModel.EditorContents);
+            }
+
+            if (result != ContentDialogResult.None)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async void OnOpenFolderButtonClicked(object sender, RoutedEventArgs e)
+        {
+            string fileContents = System.IO.File.ReadAllText(currentPath);
+            Boolean canOpen = true;
+            if (ViewModel.WorkspaceDirectory != null && ViewModel.EditorContents != fileContents)
+            {
+                canOpen = await AskToSaveChanges();
+            }
+
+            if (!canOpen) return;
+
+            (App.Current as App).workingDirectory = await folderPicker.PickSingleFolderAsync();
+            CreateWorkspaceFromAppDirectory();
+        }
+
+        private void OnSaveFileButtonClick(object sender, RoutedEventArgs e)
+        {
+            if(currentPath != null)
+            {
+                System.IO.File.WriteAllText(currentPath, ViewModel.EditorContents);
+                // await Windows.Storage.FileIO.WriteTextAsync(currentFile, ViewModel.EditorContents);
             }
         }
 
-        private async void OnSaveFileButtonClick(object sender, RoutedEventArgs e)
+        private async void OnOpenFolderButtonClick(object sender, RoutedEventArgs e)
         {
-            if(currentFile != null)
+            (App.Current as App).workingDirectory = await folderPicker.PickSingleFolderAsync();
+
+            CreateWorkspaceFromAppDirectory();
+        }
+
+        private void CreateWorkspaceFromAppDirectory()
+        {
+            (App.Current as App).Files = System.IO.Directory.EnumerateFiles((App.Current as App).workingDirectory.Path, "*", System.IO.SearchOption.AllDirectories);
+
+            int dirLen = (App.Current as App).workingDirectory.Path.Length;
+
+            foreach (string file in (App.Current as App).Files)
             {
-                await Windows.Storage.FileIO.WriteTextAsync(currentFile, this.Editor.Text);
+                NavigationView.MenuItems.Add(file.Substring(dirLen));
             }
+
+            ContentFrame.Navigate(typeof(Workspace));
+        }
+
+        private void OnNavigationViewSelectionChanged(NavigationView sender, 
+            NavigationViewSelectionChangedEventArgs args)
+        {
+            currentPath = (App.Current as App).workingDirectory.Path + args.SelectedItemContainer.Content;
+            ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
         }
     }
 }
