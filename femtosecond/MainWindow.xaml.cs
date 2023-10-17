@@ -45,14 +45,14 @@ namespace femtosecond
 
                 AppTitleBar.Loaded += AppTitleBar_Loaded;
                 AppTitleBar.SizeChanged += AppTitleBar_SizeChanged;
-            } 
+            }
             else
             {
                 AppTitleBar.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void InitializeFolderPicker() 
+        private void InitializeFolderPicker()
         {
             folderPicker = new FolderPicker();
             folderPicker.ViewMode = PickerViewMode.List;
@@ -61,8 +61,8 @@ namespace femtosecond
             var hWnd = WindowNative.GetWindowHandle(this);
             InitializeWithWindow.Initialize(folderPicker, hWnd);
         }
-        
-        private AppWindow GetAppWindowForCurrentWindow() 
+
+        private AppWindow GetAppWindowForCurrentWindow()
         {
             IntPtr hWnd = WindowNative.GetWindowHandle(this);
             WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
@@ -71,7 +71,7 @@ namespace femtosecond
 
         private void AppTitleBar_Loaded(object sender, RoutedEventArgs e)
         {
-            if (AppWindowTitleBar.IsCustomizationSupported()) 
+            if (AppWindowTitleBar.IsCustomizationSupported())
             {
                 SetDragRegionForCustomTitleBar(m_AppWindow);
             }
@@ -79,7 +79,7 @@ namespace femtosecond
 
         private void AppTitleBar_SizeChanged(object sender, RoutedEventArgs e)
         {
-            if(AppWindowTitleBar.IsCustomizationSupported()
+            if (AppWindowTitleBar.IsCustomizationSupported()
                 && m_AppWindow.TitleBar.ExtendsContentIntoTitleBar)
             {
                 SetDragRegionForCustomTitleBar(m_AppWindow);
@@ -88,7 +88,7 @@ namespace femtosecond
 
         private void SetDragRegionForCustomTitleBar(AppWindow appWindow)
         {
-            if(AppWindowTitleBar.IsCustomizationSupported()
+            if (AppWindowTitleBar.IsCustomizationSupported()
                 && appWindow.TitleBar.ExtendsContentIntoTitleBar)
             {
                 double scaleAdjustment = GetScaleAdjustment();
@@ -97,7 +97,7 @@ namespace femtosecond
                 LeftPaddingColumn.Width = new GridLength(appWindow.TitleBar.LeftInset / scaleAdjustment);
 
                 List<Windows.Graphics.RectInt32> dragRectsList = new();
-         
+
                 Windows.Graphics.RectInt32 dragRectL;
                 dragRectL.X = (int)(LeftPaddingColumn.ActualWidth * scaleAdjustment);
                 dragRectL.Y = 0;
@@ -131,7 +131,7 @@ namespace femtosecond
             MDT_Default = MDT_Effective_DPI
         }
 
-        private double GetScaleAdjustment() 
+        private double GetScaleAdjustment()
         {
             IntPtr hWnd = WindowNative.GetWindowHandle(this);
             WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
@@ -140,7 +140,7 @@ namespace femtosecond
 
             // get DPI
             int result = GetDpiForMonitor(hMonitor, Monitor_DPI_Type.MDT_Default, out uint dpiX, out uint _);
-            if(result != 0)
+            if (result != 0)
             {
                 throw new Exception("Could not get DPI for monitor.");
             }
@@ -150,14 +150,14 @@ namespace femtosecond
 
         private async void OnNewWorkspaceButtonClick(object sender, RoutedEventArgs e)
         {
-            if(ViewModel.WorkspaceDirectory == null)
+            if (ViewModel.WorkspaceDirectory == null)
             {
                 CreateNewWorkspace();
                 return;
             }
 
             string fileContents = System.IO.File.ReadAllText(currentPath);
-            if(fileContents != ViewModel.EditorContents)
+            if (fileContents != ViewModel.EditorContents)
             {
                 Boolean canOpen = await AskToSaveChanges();
                 if (canOpen) CreateNewWorkspace();
@@ -196,13 +196,16 @@ namespace femtosecond
             return true;
         }
 
-        private async void OnOpenFolderButtonClicked(object sender, RoutedEventArgs e)
+        private async void OnOpenFolderButtonClick(object sender, RoutedEventArgs e)
         {
-            string fileContents = System.IO.File.ReadAllText(currentPath);
             Boolean canOpen = true;
-            if (ViewModel.WorkspaceDirectory != null && ViewModel.EditorContents != fileContents)
-            {
-                canOpen = await AskToSaveChanges();
+            
+            if(currentPath != null) {
+                string fileContents = System.IO.File.ReadAllText(currentPath);
+                if (ViewModel.WorkspaceDirectory != null && ViewModel.EditorContents != fileContents)
+                {
+                    canOpen = await AskToSaveChanges();
+                }
             }
 
             if (!canOpen) return;
@@ -239,7 +242,7 @@ namespace femtosecond
         private void OnNavigationViewSelectionChanged(NavigationView sender, 
             NavigationViewSelectionChangedEventArgs args)
         {
-            currentPath = (App.Current as App).workingDirectory.Path + args.SelectedItemContainer.Content;
+            currentPath = (App.Current as App).workingDirectory.Path + (args.SelectedItemContainer.Content as MenuFileItem).FileName;
             ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
         }
     }

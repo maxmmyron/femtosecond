@@ -14,9 +14,10 @@ using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace femtosecond
 {
+    [TemplatePart(Name = nameof(FileNameTextBox), Type = typeof(TextBox))]
     public sealed class MenuFileItem : Control
     {
-        private TextBox textBox;
+        private TextBox? FileNameTextBox { get; set; }
 
         public string FileName
         {
@@ -41,20 +42,10 @@ namespace femtosecond
             
         }
 
-        private void RenameItemClick(object sender, RoutedEventArgs e)
+        private void OnRenameContextItemClick(object sender, RoutedEventArgs e)
         {
-            // create a textbox for input
-            textBox = new TextBox()
-            {
-                Text = FileName,
-            };
-
-            textBox.KeyDown += OnTextBoxKeyDown;
-
-            textBox.Focus(FocusState.Keyboard);
-
-            textBox.FocusDisengaged += OnTextBoxFocusDisengaged;
-
+            FileNameTextBox.Visibility = Visibility.Visible;
+            FileNameTextBox.Focus(FocusState.Keyboard);
         }
 
         private void OnTextBoxKeyDown(object sender, KeyRoutedEventArgs e) 
@@ -63,16 +54,16 @@ namespace femtosecond
             {
                 string newFileName = (sender as TextBox).Text;
 
-                textBox.Visibility = Visibility.Collapsed;
+                FileNameTextBox.Visibility = Visibility.Collapsed;
             }
         }
 
         private void OnTextBoxFocusDisengaged(object sender, RoutedEventArgs e)
         {
-            textBox.Visibility = Visibility.Collapsed;
+            FileNameTextBox.Visibility = Visibility.Collapsed;
         }
 
-        private void DeleteItemClick(object sender, RoutedEventArgs e)
+        private void OnDeleteContextItemClick(object sender, RoutedEventArgs e)
         {
 
         }
