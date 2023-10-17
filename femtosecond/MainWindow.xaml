@@ -41,9 +41,9 @@
                           VerticalAlignment="center" 
                           Margin="4,0">
                 <muxc:MenuBarItem Title="File">
-                    <muxc:MenuFlyoutItem x:Name="NewWorkspaceButton" Click="OnNewWorkspaceButtonClick" Text="New Workspace"/>
-                    <muxc:MenuFlyoutItem x:Name="OpenFolderButton" Click="OnOpenFolderButtonClick" Text="Open Folder"/>
-                    <muxc:MenuFlyoutItem x:Name="SaveFileButton" Click="OnSaveFileButtonClick" Text="Save File"/>
+                    <muxc:MenuFlyoutItem Click="OnNewWorkspaceButtonClick" Text="New Workspace"/>
+                    <muxc:MenuFlyoutItem Click="OnOpenFolderButtonClick" Text="Open Folder"/>
+                    <muxc:MenuFlyoutItem Click="OnSaveFileButtonClick" Text="Save File"/>
                 </muxc:MenuBarItem>
             </muxc:MenuBar>
         </Grid>
@@ -55,7 +55,7 @@
                         SelectionChanged="OnNavigationViewSelectionChanged">
             <Frame x:Name="ContentFrame" Grid.Row="1">
                 <Frame VerticalContentAlignment="center" HorizontalContentAlignment="center">
-                    <Button Content="Open Folder" x:Name="OpenFolderButton" Click="OnOpenFolderButtonClick" />
+                    <Button Click="OnOpenFolderButtonClick" Content="Open Folder"/>
                 </Frame>
             </Frame>
         </NavigationView>
