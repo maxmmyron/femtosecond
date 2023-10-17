@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using Windows.Storage.Pickers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -26,6 +27,8 @@ namespace femtosecond
     /// </summary>
     public partial class App : Application
     {
+        public Windows.Storage.StorageFolder workingDirectory;
+        public IEnumerable<string> Files;
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
