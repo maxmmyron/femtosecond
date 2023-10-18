@@ -269,8 +269,31 @@ namespace femtosecond
                     Tag = file.FullName,
                 };
 
+                MenuFlyout ContextMenu = new();
+
+                MenuFlyoutItem ClickFlyoutItem = new();
+                ClickFlyoutItem.Text = "Rename";
+                ClickFlyoutItem.Click += OnNavigationMenuRenameFlyoutItemClick;
+
+                MenuFlyoutItem DeleteFlyoutItem = new();
+                ClickFlyoutItem.Text = "Delete";
+                ClickFlyoutItem.Click += OnNavigationMenuDeleteFlyoutItemClick;
+
+                ContextMenu.Items.Add(ClickFlyoutItem);
+                ContextMenu.Items.Add(DeleteFlyoutItem);
+
                 menuItems.Add(item);
             }
+        }
+
+        private void OnNavigationMenuRenameFlyoutItemClick(object sender, RoutedEventArgs e)
+        {
+            sender = sender;
+        }
+
+        private void OnNavigationMenuDeleteFlyoutItemClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
