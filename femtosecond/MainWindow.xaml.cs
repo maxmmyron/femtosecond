@@ -199,8 +199,8 @@ namespace femtosecond
         private async void OnOpenFolderButtonClick(object sender, RoutedEventArgs e)
         {
             Boolean canOpen = true;
-            
-            if(currentPath != null) {
+
+            if (currentPath != null) {
                 string fileContents = System.IO.File.ReadAllText(currentPath);
                 if (ViewModel.WorkspaceDirectory != null && ViewModel.EditorContents != fileContents)
                 {
@@ -211,6 +211,8 @@ namespace femtosecond
             if (!canOpen) return;
 
             (App.Current as App).workingDirectory = await folderPicker.PickSingleFolderAsync();
+            
+            NavigationView.MenuItems.Clear();
             CreateWorkspaceFromAppDirectory();
         }
 
@@ -229,22 +231,7 @@ namespace femtosecond
 
             System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo((App.Current as App).workingDirectory.Path);
 
-            foreach (var subdirectory in dirInfo.GetDirectories())
-            {
-                // create a menu item
-                NavigationViewItem subFolder = new NavigationViewItem()
-                {
-                    Name = subdirectory.Name,
-                };
-
-                ConstructFolder(subdirectory, subFolder, 1);
-                NavigationView.MenuItems.Add(subFolder);
-            }
-
-            foreach (var file in dirInfo.GetFiles())
-            {
-                NavigationView.MenuItems.Add(file.Name);
-            }
+            ConstructFolder(dirInfo, NavigationView.MenuItems);
 
             ContentFrame.Navigate(typeof(Workspace));
         }
@@ -252,28 +239,37 @@ namespace femtosecond
         private void OnNavigationViewSelectionChanged(NavigationView sender, 
             NavigationViewSelectionChangedEventArgs args)
         {
-            // currentPath = (App.Current as App).workingDirectory.Path + (args.SelectedItemContainer.Content as MenuFileItem).FileName;
-            // currentPath = (App.Current as App).workingDirectory.Path + args.SelectedItemContainer.Content;
-            // ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
+            object tag = args.SelectedItemContainer.Tag;
+            // if tag is null we've clicked on a folder. do nothing
+            if (tag == null) return;
+
+            currentPath = tag.ToString();
+            ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
         }
 
-        private void ConstructFolder(System.IO.DirectoryInfo directory, NavigationViewItem folder, int depth = 0)
+        private void ConstructFolder(System.IO.DirectoryInfo directory, IList<object> menuItems, int depth = 0)
         {
             foreach (var subdirectory in directory.GetDirectories())
             {
                 // create a menu item
-                NavigationViewItem subFolder = new NavigationViewItem()
+                NavigationViewItem subFolder = new()
                 {
-                    Name = subdirectory.Name,
+                    Content = subdirectory.Name,
                 };
 
-                ConstructFolder(subdirectory, subFolder, depth + 1);
-                folder.MenuItems.Add(subFolder);
+                ConstructFolder(subdirectory, subFolder.MenuItems, depth + 1);
+                menuItems.Add(subFolder);
             }
 
             foreach(var file in directory.GetFiles())
             {
-                folder.MenuItems.Add(file.Name);
+                NavigationViewItem item = new()
+                {
+                    Content = file.Name,
+                    Tag = file.FullName,
+                };
+
+                menuItems.Add(item);
             }
         }
     }
