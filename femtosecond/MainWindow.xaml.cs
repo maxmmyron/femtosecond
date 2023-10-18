@@ -227,13 +227,23 @@ namespace femtosecond
         {
             (App.Current as App).Files = System.IO.Directory.EnumerateFiles((App.Current as App).workingDirectory.Path, "*", System.IO.SearchOption.AllDirectories);
 
-            int dirLen = (App.Current as App).workingDirectory.Path.Length;
+            System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo((App.Current as App).workingDirectory.Path);
 
-            foreach (string file in (App.Current as App).Files)
+            foreach (var subdirectory in dirInfo.GetDirectories())
             {
-                MenuFileItem item = new MenuFileItem();
-                item.FileName = file.Substring(dirLen);
-                NavigationView.MenuItems.Add(item);
+                // create a menu item
+                NavigationViewItem subFolder = new NavigationViewItem()
+                {
+                    Name = subdirectory.Name,
+                };
+
+                ConstructFolder(subdirectory, subFolder, 1);
+                NavigationView.MenuItems.Add(subFolder);
+            }
+
+            foreach (var file in dirInfo.GetFiles())
+            {
+                NavigationView.MenuItems.Add(file.Name);
             }
 
             ContentFrame.Navigate(typeof(Workspace));
@@ -242,8 +252,29 @@ namespace femtosecond
         private void OnNavigationViewSelectionChanged(NavigationView sender, 
             NavigationViewSelectionChangedEventArgs args)
         {
-            currentPath = (App.Current as App).workingDirectory.Path + (args.SelectedItemContainer.Content as MenuFileItem).FileName;
-            ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
+            // currentPath = (App.Current as App).workingDirectory.Path + (args.SelectedItemContainer.Content as MenuFileItem).FileName;
+            // currentPath = (App.Current as App).workingDirectory.Path + args.SelectedItemContainer.Content;
+            // ViewModel.EditorContents = System.IO.File.ReadAllText(currentPath);
+        }
+
+        private void ConstructFolder(System.IO.DirectoryInfo directory, NavigationViewItem folder, int depth = 0)
+        {
+            foreach (var subdirectory in directory.GetDirectories())
+            {
+                // create a menu item
+                NavigationViewItem subFolder = new NavigationViewItem()
+                {
+                    Name = subdirectory.Name,
+                };
+
+                ConstructFolder(subdirectory, subFolder, depth + 1);
+                folder.MenuItems.Add(subFolder);
+            }
+
+            foreach(var file in directory.GetFiles())
+            {
+                folder.MenuItems.Add(file.Name);
+            }
         }
     }
 }
