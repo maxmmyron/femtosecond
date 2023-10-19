@@ -272,23 +272,33 @@ namespace femtosecond
                 MenuFlyout ContextMenu = new();
 
                 MenuFlyoutItem ClickFlyoutItem = new();
+                ClickFlyoutItem.DataContext = item;
                 ClickFlyoutItem.Text = "Rename";
                 ClickFlyoutItem.Click += OnNavigationMenuRenameFlyoutItemClick;
 
                 MenuFlyoutItem DeleteFlyoutItem = new();
-                ClickFlyoutItem.Text = "Delete";
-                ClickFlyoutItem.Click += OnNavigationMenuDeleteFlyoutItemClick;
+                DeleteFlyoutItem.DataContext = item;
+                DeleteFlyoutItem.Text = "Delete";
+                DeleteFlyoutItem.Click += OnNavigationMenuDeleteFlyoutItemClick;
 
                 ContextMenu.Items.Add(ClickFlyoutItem);
                 ContextMenu.Items.Add(DeleteFlyoutItem);
+
+                item.ContextFlyout = ContextMenu;
 
                 menuItems.Add(item);
             }
         }
 
-        private void OnNavigationMenuRenameFlyoutItemClick(object sender, RoutedEventArgs e)
+        private async void OnNavigationMenuRenameFlyoutItemClick(object sender, RoutedEventArgs e)
         {
-            sender = sender;
+            MenuFlyoutItem Item = sender as MenuFlyoutItem;
+            string OriginalFileName = (Item.DataContext as NavigationViewItem).Content.ToString();
+            // string path = (Item.DataContext as NavigationViewItem).Tag.ToString();
+
+            RenameDialog dialog = new(OriginalFileName, Item.XamlRoot);
+            
+            await dialog.ShowAsync();
         }
 
         private void OnNavigationMenuDeleteFlyoutItemClick(object sender, RoutedEventArgs e)
