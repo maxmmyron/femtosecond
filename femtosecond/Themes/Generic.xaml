@@ -1,0 +1,29 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:femtosecond">
+
+    <Style TargetType="local:CustomControl1" >
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RenameDialog">
+                    <ContentDialog x:Name="RenameContentDialog" Title="Rename" PrimaryButtonText="Hi" CloseButtonText="bye">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="200" />
+                                <RowDefinition Height="48" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock>Remame</TextBlock>
+                            <TextBox Grid.Row="1" Text="{
+                                Binding NewFileName, 
+                                UpdateSourceTrigger=PropertyChanged
+                            }" />
+                        </Grid>
+                        
+                    </ContentDialog>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
